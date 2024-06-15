@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulaire de soumission</title>
+    <title>Formulaire de soumission</title>
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        {% endblock %}
+        {% block javascripts %}
+            <script src="{{ asset('js/custom.js') }}"></script>
+            <script src="https://cdn.jsdelivr.net/npm/rss-parser/dist/rss-parser.min.js"></script>
+        {% endblock %}
+</head>
+<body>
+    {% set text_color = '#ffffff' %}
+    {% set transparency = '#ffffff00' %}
+    {% set background_color = 'rgb(9, 140, 97)' %}
+    {% set background_color_opacity = background_color|replace({')': ', 0.8)'}) %}
+    {% set image = 'aya.webp' %}
+    {% set list_flux = 'Liste des flux' %}
+    {% set time_init = '00:00' %}
+    {% set curent_chargement = 'En cours de chargement ...' %}
+    {% set logo_radio = 'iconcpam.png' %}
+    {% set alt_logo = 'Radio Bousol Logo CPAM' %}
+    {% set alt_image_de_font = 'Radio Bousol Logo CPAM' %}
+
+    <!-- Définition du tableau des flux RSS -->
+    {% set feed_items = [
+        {'url': 'https://feed.ausha.co/oKM1EhRElXnN', 'title': 'Le Quart d’heure santé', 'color': 'rgb(0, 0, 0)', 'image_de_font': 'aya.webp'},
+        {'url': 'https://cnam-data.empreinte.tech/podcast/rss/rss_podcast_48.xml', 'title': 'Article 51', 'color': 'rgb(28, 43, 55)', 'image_de_font': 'future-square.webp'},
+        {'url': 'https://feeds.acast.com/public/shows/assurance-maladie', 'title': 'De l’autre côté de l’écran', 'color': 'rgb(224, 17, 17)', 'image_de_font': 'll-cool.jpg'},
+        {'url': 'https://feed.ausha.co/0m1v2TkP2xGM', 'title': 'Cap vers', 'color': 'rgb(9, 140, 97)', 'image_de_font': 'm_pokora.webp'},
+        {'url': 'https://feed.ausha.co/Bn58YcJvL0xJ', 'title': 'Parlons peu parlons sécu', 'color': 'rgb(224, 17, 17)', 'image_de_font': 'shay.jpg'},
+        {'url': 'https://www.youtube.com/feeds/videos.xml?channel_id=UCgoxc-VKU0cw9BcM9z_qokg', 'title': 'YouTube', 'color': 'rgb(224, 17, 17)', 'image_de_font': 'booba.webp'}
+    ] %}
+
+    <!-- Définition des styles CSS -->
+    <style>
+        #radio-bousol .radio-bousol-mask {
+            background: linear-gradient(to bottom, {{ transparency }}, {{ transparency }}, {{ background_color }});
+        }
+        #radio-bousol:hover .radio-bousol-mask {
+            background: linear-gradient(to bottom, {{ transparency }}, {{ background_color }}, {{ background_color }}); /* Exemple de gradient sur hover */
+        }
+        #radio-bousol:hover .radio-bousol-flux {
+            background: {{ background_color }};
+        }
+        #radio-bousol li:hover {
+            background-color: {{ background_color }};
+        }
+    </style>
+
+    <!-- Contenu principal de la page -->
+    <div id="radio-bousol">
+        <!-- Ce morceau de code crée une section de contenu pour afficher une liste de flux -->
+        <div class="radio-bousol-flux-content" style="color: {{ text_color }}; background: {{ background_color_opacity }}">
+            <div class="radio-bousol-head">
+                <div class="radio-bousol-logo">
+                    {# <img src="{{ asset('/images/radio/' ~ logo_radio) }}" alt="{{ alt_logo }}" /> #}
+                </div>
+                <h3>{{ list_flux }}</h3>
+                <div class="radio-bousol-animation" id="radio-bousol-closeListflux">
+                    <svg class="radio-bousol-close" xmlns="http://www.w3.org/2000/svg" height="36px" viewBox="0 -960 960 960" width="36px" fill="#DDD">
+                        <path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/>
+                    </svg>
+                </div>
+            </div>
+            <ul id="feed-selector">
+                {% for item in feed_items %}
+                    <li data-url="{{ item.url }}" data-color="{{ item.color }}" data-image="{{ asset('/images/radio/' ~ item.image_de_font) }}">
+                        {{ item.title }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Ce bout de code crée une section pour afficher le lecteur audio des flux RSS. (Inject dynamiquement) -->
+        <div id="rss-feed" style="color: {{ text_color }}; background: {{ background_color_opacity }}">
+            <div id="audio-container"></div>
+        </div>
+
+        <!-- Image d'arrière-plan -->
+        <img src="{{ asset('/images/radio/' ~ image) }}" class="radio-bousol-img" alt="{{ alt_image_de_font }}" />
+
+        <!-- Conteneur pour le masque de couleur de la radio et la navigation -->
+        <div class="radio-bousol-mask">
+            <!-- En-tête de la radio -->
+            <div class="radio-bousol-head">
+                <div class="radio-bousol-logo">
+                    <!-- Logo de la radio -->
+                    {# <img src="{{ asset('/images/radio/' ~ logo_radio) }}" alt="{{ alt_logo }}" style="color: {{ text_color }};" /> #}
+                </div>
+                <!-- >Bouton d'affichage de la "Liste des flux" -->
+                <div class="radio-bousol-flux" id="radio-bousol-openListFlux">
+                    {{ list_flux }}
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#DDD">
+                        <path d="M579-480 285-774q-15-15-14.5-35.5T286-845q15-15 35.5-15t35.5 15l307 308q12 12 18 27t6 30q0 15-6 30t-18 27L356-115q-15 15-35 14.5T286-116q-15-15-15-35.5t15-35.5l293-293Z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Barre de progression du temps -->
+            <div class="radio-bousol-body">
+                <div class="radio-bousol-timebar">
+                    <div class="radio-bousol-title" id="radio-bousol-title" style="color: {{ text_color }};">
+                        {{ curent_chargement }}
+                    </div>
+                    <progress id="progress-bar" class="radio-bousol-bar" value="0" max="100" style="background: rgba(77, 77, 77, 0.51)"></progress>
+                    <!-- Conteneur pour l'affichage du temps -->
+                    <div class="radio-bousol-time">
+                        <span class="radio-bousol-compteur" id="radio-bousol-currenttime" style="color: {{ text_color }};">{{ time_init }}</span>
+                        <span class="radio-bousol-compteur" id="radio-bousol-duration" style="color: {{ text_color }};">{{ time_init }}</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Bloque de navigation -->
+            <div class="radio-bousol-bottom">
+                <!-- Bouton pour passer au morceau précédent -->
+                <div class="radio-bousol-nav radio-bousol-animation" id="prev-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#DDD">
+                        <path d="M798-281 550-447q-9-6-13.5-14.5T532-480q0-10 4.5-18.5T550-513l248-166q5-4 11-5t11-1q16 0 28 11t12 29v330q0 18-12 29t-28 11q-5 0-11-1t-11-5Zm-400 0L150-447q-9-6-13.5-14.5T132-480q0-10 4.5-18.5T150-513l248-166q5-4 11-5t11-1q16 0 28 11t12 29v330q0 18-12 29t-28 11q-5 0-11-1t-11-5Z"/>
+                    </svg>
+                </div>
+                <!-- Bouton de lecture/pause -->
+                <div class="radio-bousol-play radio-bousol-animation" id="play-pause-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="90px" viewBox="0 -960 960 960" width="90px" fill="#DDD">
+                        <path d="M320-273v-414q0-17 12-28.5t28-11.5q5 0 10.5 1.5T381-721l326 207q9 6 13.5 15t4.5 19q0 10-4.5 19T707-446L381-239q-5 3-10.5 4.5T360-233q-16 0-28-11.5T320-273Z"/>
+                    </svg>
+                </div>
+                <!-- Bouton pour passer au morceau suivant -->
+                <div class="radio-bousol-nav radio-bousol-animation" id="next-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#DDD">
+                        <path d="M100-315v-330q0-18 12-29t28-11q5 0 11 1t11 5l248 166q9 6 13.5 14.5T428-480q0 10-4.5 18.5T410-447L162-281q-5 4-11 5t-11 1q-16 0-28-11t-12-29Zm400 0v-330q0-18 12-29t28-11q5 0 11 1t11 5l248 166q9 6 13.5 14.5T828-480q0 10-4.5 18.5T810-447L562-281q-5 4-11 5t-11 1q-16 0-28-11t-12-29Z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

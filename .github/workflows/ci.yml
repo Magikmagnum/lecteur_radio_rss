@@ -1,0 +1,54 @@
+# Nom du workflow
+name: CI
+
+# Définition des événements qui déclenchent le workflow
+on:
+  # Déclenche le workflow lors d'un push sur la branche 'main'
+  push:
+    branches: [ main ]
+  # Déclenche le workflow lors d'une pull request vers la branche 'main'
+  pull_request:
+    branches: [ main ]
+
+# Définition des jobs (tâches) à exécuter
+jobs:
+  build:
+    # Utilisation d'une machine virtuelle Ubuntu
+    runs-on: ubuntu-latest
+
+    # Définition des services nécessaires, ici MySQL
+    services:
+      mysql:
+        # Image Docker de MySQL version 5.7
+        image: mysql:5.7
+        # Exposition du port 3306 pour MySQL
+        ports:
+          - 3306:3306
+        # Variables d'environnement pour MySQL
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: symfony_test
+
+    # Définition des étapes du job
+    steps:
+    # Étape pour vérifier le code source du repository
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Étape pour installer PHP avec la version spécifiée
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+
+    # Étape pour installer les dépendances du projet
+    - name: Install dependencies
+      run: |
+        # Copie le fichier d'environnement de test
+        cp .env.test .env
+        # Installe les dépendances avec Composer
+        composer install --prefer-dist --no-progress --no-suggest
+
+    # Étape pour exécuter les tests avec PHPUnit
+    - name: Run tests
+      run: php bin/phpunit

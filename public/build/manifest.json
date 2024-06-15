@@ -1,0 +1,12 @@
+{
+  "build/app.css": "/build/app.css",
+  "build/app.js": "/build/app.js",
+  "build/runtime.js": "/build/runtime.js",
+  "build/vendors-node_modules_core-js_modules_es_array_concat_js-node_modules_core-js_modules_es_array-9e9712.js": "/build/vendors-node_modules_core-js_modules_es_array_concat_js-node_modules_core-js_modules_es_array-9e9712.js",
+  "build/images/radio/shay.jpg": "/build/images/radio/shay.jpg",
+  "build/images/radio/future-square.webp": "/build/images/radio/future-square.webp",
+  "build/images/radio/ll-cool.jpg": "/build/images/radio/ll-cool.jpg",
+  "build/images/radio/booba.webp": "/build/images/radio/booba.webp",
+  "build/images/radio/aya.webp": "/build/images/radio/aya.webp",
+  "build/images/radio/m_pokora.webp": "/build/images/radio/m_pokora.webp"
+}

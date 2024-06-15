@@ -1,0 +1,18 @@
+{# templates/inscription/index.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formulaire de soumission</title>
+</head>
+<body>
+    <h1>Bienvenue sur la Radio Bousole</h1>
+    <form action="{{ path('homepage') }}" method="post">
+        <label for="nom">Nom:</label>
+        <input type="text" id="nom" name="nom">
+        <button type="submit">Soumettre</button>
+    </form>
+    {% if nom %}
+        <p>Hello {{ nom }}</p>
+    {% endif %}
+</body>
+</html>
