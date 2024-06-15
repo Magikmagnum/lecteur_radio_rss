@@ -5,10 +5,10 @@ name: CI
 on:
   # Déclenche le workflow lors d'un push sur la branche 'main'
   push:
-    branches: [ main ]
+    branches: [main]
   # Déclenche le workflow lors d'une pull request vers la branche 'main'
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 # Définition des jobs (tâches) à exécuter
 jobs:
@@ -27,28 +27,28 @@ jobs:
         # Variables d'environnement pour MySQL
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: symfony_test
+          MYSQL_DATABASE: testBDD
 
     # Définition des étapes du job
     steps:
-    # Étape pour vérifier le code source du repository
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # Étape pour vérifier le code source du repository
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Étape pour installer PHP avec la version spécifiée
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
+      # Étape pour installer PHP avec la version spécifiée
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.0"
 
-    # Étape pour installer les dépendances du projet
-    - name: Install dependencies
-      run: |
-        # Copie le fichier d'environnement de test
-        cp .env.test .env
-        # Installe les dépendances avec Composer
-        composer install --prefer-dist --no-progress --no-suggest
+      # Étape pour installer les dépendances du projet
+      - name: Install dependencies
+        run: |
+          # Copie le fichier d'environnement de test
+          cp .env.test .env
+          # Installe les dépendances avec Composer
+          composer install --prefer-dist --no-progress --no-suggest
 
-    # Étape pour exécuter les tests avec PHPUnit
-    - name: Run tests
-      run: php bin/phpunit
+      # Étape pour exécuter les tests avec PHPUnit
+      - name: Run tests
+        run: php bin/phpunit
