@@ -1,0 +1,20 @@
+default:
+    suites:
+        default:
+            contexts:
+                - App\Tests\Behat\DemoContext
+                - App\Tests\Behat\InscriptionContext
+    extensions:
+        FriendsOfBehat\SymfonyExtension:
+            bootstrap: tests/bootstrap.php
+        # Behat\MinkExtension:
+        #     base_url: http://localhost:8000
+        #     sessions:
+        #         default_session: symfony
+        #         javascript_session: selenium2
+                
+        #         browser_name: chrome
+        #         symfony: ~
+        #         selenium2: ~
+
+

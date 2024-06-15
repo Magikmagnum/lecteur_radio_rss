@@ -1,0 +1,271 @@
+#radio-bousol {
+    position: relative;
+    background: #fff;
+    width: 100%;
+    height: 317px;
+    margin: 38px 0;
+}
+
+
+.radio-bousol-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+  
+  .radio-bousol-mask {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* background: linear-gradient(
+          to bottom,
+          rgba(214, 88, 88, 0),
+          rgba(214, 88, 88, 0),
+          rgb(0, 0, 0)
+        ); */
+  }
+  
+  #radio-bousol:hover .radio-bousol-mask {
+    /* background: linear-gradient(
+          to bottom,
+          rgba(214, 88, 88, 0),
+          rgba(0, 0, 0, 0.8),
+          rgb(0, 0, 0)
+        ); */
+  }
+  
+  .radio-bousol-head {
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 18px;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .radio-bousol-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .radio-bousol-logo img {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .radio-bousol-flux {
+    display: none;
+  }
+  
+  #radio-bousol:hover .radio-bousol-flux {
+    width: 24%;
+    height: 42px;
+    border-radius: 32px;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+  }
+  
+  .radio-bousol-closeListflux {
+    width: 100%;
+    height: 34px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 28px -14px;
+  }
+  
+  .radio-bousol-body {
+    flex: 1;
+    position: relative;
+    flex-direction: row;
+  }
+  
+  .radio-bousol-title {
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+  
+  .radio-bousol-bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+  }
+  
+  .radio-bousol-nav {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .radio-bousol-play {
+    width: 90px;
+    height: 90px;
+    cursor: pointer;
+  }
+  
+  .radio-bousol-time {
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+  }
+  
+  .radio-bousol-compteur {
+    font-size: 0.9em;
+  }
+  
+  .radio-bousol-body {
+    margin: 0 60px;
+  }
+  
+  .radio-bousol-timebar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+  
+  .radio-bousol-bar {
+    /* background-color: rgba(77, 77, 77, 0.51); */
+    width: 100%;
+    height: 1px;
+    border-radius: 32px;
+    margin-bottom: 13px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    transition: height 0.1s ease-in-out;
+  }
+  
+  #radio-bousol:hover .radio-bousol-bar {
+    height: 6px;
+  }
+  
+  .radio-bousol-bar::-webkit-progress-bar {
+    background-color: #ffffff;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .radio-bousol-bar::-webkit-progress-value {
+    background-color: #ffffff;
+    border-radius: 5px 0 0 5px;
+  }
+  
+  .radio-bousol-bar::-moz-progress-bar {
+    background-color: #ffffff;
+    border-radius: 5px;
+  }
+  
+  .radio-bousol-animation svg {
+    transform-origin: center;
+    transition: transform 0.05s ease-in;
+  }
+  
+  .radio-bousol-animation svg:hover {
+    transform: scale(1.2);
+  }
+  
+  .radio-bousol-animation svg:hover {
+    fill: #fff !important;
+  }
+  
+  #feed-selector {
+  }
+  
+  #rss-feed {
+    z-index: 1000000;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #radio-bousol #feed-selector {
+  }
+  
+  #radio-bousol #feed-selector svg {
+    position: absolute;
+    top: 12;
+    right: 12;
+  }
+  
+  #radio-bousol #rss-feed {
+    display: none;
+    left: 0;
+  }
+  
+  #radio-bousol audio {
+    display: none;
+  }
+  
+  #radio-bousol p {
+    text-align: justify;
+    line-height: 2.1em;
+    overflow-y: scroll;
+    padding: 0 24px;
+    margin: 24px 0;
+    height: 194px;
+  }
+  
+  .radio-bousol-close {
+    cursor: pointer;
+  }
+  
+  #radio-bousol h3 {
+    line-height: 1.4em;
+    font-size: 1.4em;
+    flex: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 0%;
+  }
+  
+  #radio-bousol ul {
+    list-style-type: none;
+  }
+  
+  #radio-bousol li {
+    text-decoration: none;
+    cursor: pointer;
+    margin: 0px 0px 0px -40px;
+    padding: 24px 24px;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  #radio-bousol .radio-bousol-flux-content {
+    /* position: relative; */
+    z-index: 1000000;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    overflow-y: scroll;
+    display: none;
+  }
+  
