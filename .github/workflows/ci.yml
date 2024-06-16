@@ -1,54 +1,69 @@
 # Nom du workflow
 name: CI
 
-# Définition des événements qui déclenchent le workflow
 on:
-  # Déclenche le workflow lors d'un push sur la branche 'main'
   push:
-    branches: [ main ]
-  # Déclenche le workflow lors d'une pull request vers la branche 'main'
+    branches: [main, dev]
   pull_request:
-    branches: [ main ]
+    branches: [main, dev]
 
-# Définition des jobs (tâches) à exécuter
 jobs:
   build:
-    # Utilisation d'une machine virtuelle Ubuntu
     runs-on: ubuntu-latest
 
-    # Définition des services nécessaires, ici MySQL
     services:
       mysql:
-        # Image Docker de MySQL version 5.7
         image: mysql:5.7
-        # Exposition du port 3306 pour MySQL
         ports:
           - 3306:3306
-        # Variables d'environnement pour MySQL
         env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: symfony_test
+          MYSQL_ROOT_PASSWORD: rosedede
+          MYSQL_DATABASE: testBDD
 
-    # Définition des étapes du job
     steps:
-    # Étape pour vérifier le code source du repository
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Étape pour installer PHP avec la version spécifiée
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.0'
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
 
-    # Étape pour installer les dépendances du projet
-    - name: Install dependencies
-      run: |
-        # Copie le fichier d'environnement de test
-        cp .env.test .env
-        # Installe les dépendances avec Composer
-        composer install --prefer-dist --no-progress --no-suggest
+      - name: Install dependencies
+        run: |
+          cp .env.test .env
+          composer install --prefer-dist --no-progress --no-suggest
 
-    # Étape pour exécuter les tests avec PHPUnit
-    - name: Run tests
-      run: php bin/phpunit
+      - name: Set up environment variables
+        run: |
+          echo "APP_ENV=test" >> .env
+          echo "APP_SECRET=d312c95a7b0d69c2fc5fba65c71065c9" >> .env
+          echo "DATABASE_URL=mysql://root:rosedede@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4" >> .env
+          echo "KERNEL_CLASS='App\\Kernel'" >> .env
+          echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> .env
+          echo "PANTHER_APP_ENV=panther" >> .env
+          echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> .env
+          echo "MESSENGER_TRANSPORT_DSN=doctrine://default" >> .env
+
+      # - name: Wait for MySQL to be ready
+      #   run: |
+      #     until mysqladmin ping -h 127.0.0.1 --silent; do
+      #       echo "Waiting for database connection..."
+      #       sleep 2
+      #     done
+
+      - name: Prepare test database
+        run: php bin/console doctrine:database:create --env=test
+
+      - name: Crée l'ensemble des tables
+        run: php bin/console doctrine:migrations:migrate --env=test
+
+      - name: Load fixtures
+        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
+
+      - name: Run tests
+        run: php bin/phpunit
+
+      - name: Run Behat/Mink tests
+        run: |
+          php vendor/bin/behat
