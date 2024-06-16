@@ -55,7 +55,7 @@ jobs:
       - name: Prepare test database
         run: php bin/console doctrine:database:create --env=test
 
-      - name: Crée l'ensemble des tables
+      - name: Prepare test database
         run: php bin/console doctrine:migrations:migrate --env=test
 
       - name: Load fixtures
