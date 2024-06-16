@@ -75,13 +75,39 @@ jobs:
           name: phpunit-coverage-report
           path: build/logs/clover.xml
 
-      # - name: Upload PHPUnit coverage report to Codecov
-      #   uses: codecov/codecov-action@v3
-      #   with:
-      #     files: build/logs/clover.xml
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     flags: unittests
-      #     name: codecov-coverage
+      - name: PHPUnit
+        run: |
+          ./vendor/bin/phpunit --stop-on-failure --coverage-php=coverage.php
+        env:
+          XDEBUG_MODE: coverage
+
+      - name: Generate Coverage report
+        run: |
+          php CoverageGenerate.php >> Coverage.md
+        env:
+          XDEBUG_MODE: coverage
+
+      - name: PHPStan Analysis
+        run: |
+          ./vendor/bin/phpstan analyse --configuration=phpstan.neon --memory-limit=1024M --error-format=md --no-progress >> 'Static Analysis.md'
+
+      - name: Wiki checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{github.repository}}.wiki
+          path: "wiki"
+
+      - name: Push
+        run: |
+          mv Coverage.md wiki
+          mv 'Static Analysis.md' wiki
+          cd wiki
+          ls -la
+          git config user.name actions-runner
+          git config user.email actions-runner@github.com
+          git add .
+          git commit -m "Add Coverage and Analysis files" 
+          git push
 
       - name: Run Behat/Mink tests
         run: |
