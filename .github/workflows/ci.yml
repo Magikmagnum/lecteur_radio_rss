@@ -64,6 +64,6 @@ jobs:
       - name: Run tests
         run: php bin/phpunit
 
-      # - name: Run Behat/Mink tests
-      #   run: |
-      #    php vendor/bin/behat
+      - name: Run Behat/Mink tests
+        run: |
+          php vendor/bin/behat
