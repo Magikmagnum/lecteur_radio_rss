@@ -5,10 +5,10 @@ name: CI
 on:
   # Déclenche le workflow lors d'un push sur la branche 'main'
   push:
-    branches: [main]
+    branches: [main, dev]
   # Déclenche le workflow lors d'une pull request vers la branche 'main'
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 # Définition des jobs (tâches) à exécuter
 jobs:
@@ -26,7 +26,7 @@ jobs:
           - 3306:3306
         # Variables d'environnement pour MySQL
         env:
-          MYSQL_ROOT_PASSWORD: root
+          # MYSQL_ROOT_PASSWORD:
           MYSQL_DATABASE: testBDD
 
     # Définition des étapes du job
@@ -49,6 +49,34 @@ jobs:
           # Installe les dépendances avec Composer
           composer install --prefer-dist --no-progress --no-suggest
 
+      - name: Set up environment variables
+        run: |
+          echo "APP_ENV=test" >> test
+          echo "APP_SECRET=d312c95a7b0d69c2fc5fba65c71065c9" >> test
+          echo "DATABASE_URL=mysql://root:@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4" >> test
+          echo "KERNEL_CLASS='App\\Kernel'" >> test
+          echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> test
+          echo "PANTHER_APP_ENV=panther" >> test
+          echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> test
+          echo "MESSENGER_TRANSPORT_DSN=doctrine://default" >> test
+
+      - name: Prepare test database
+        run: php bin/console doctrine:database:create --env=test
+
+      - name: Load fixtures
+        run: php bin/console doctrine:fixtures:load --env=test --no-interaction
+
       # Étape pour exécuter les tests avec PHPUnit
       - name: Run tests
+        env:
+          KERNEL_CLASS: 'App\Kernel'
+          APP_SECRET: "$ecretf0rt3st"
+          SYMFONY_DEPRECATIONS_HELPER: 999999
+          PANTHER_APP_ENV: panther
+          PANTHER_ERROR_SCREENSHOT_DIR: ./var/error-screenshots
+          MESSENGER_TRANSPORT_DSN: doctrine://default
         run: php bin/phpunit
+
+      # - name: Run Behat/Mink tests
+      #   run: |
+      #    php vendor/bin/behat
