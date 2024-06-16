@@ -1,4 +1,3 @@
-# Nom du workflow
 name: CI
 
 on:
@@ -8,9 +7,30 @@ on:
     branches: [main, dev]
 
 jobs:
-  build:
+  # Job 1: Recuperation et configuration
+  recuperation-configuration:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
 
+  # Job 2: Installation des dependances
+  installation-dependances:
+    runs-on: ubuntu-latest
+    needs: recuperation-configuration # Ce job depend du job de recuperation
+    steps:
+      - uses: actions/checkout@v2 # Peut reutiliser l'etape de recuperation
+      - name: Installation des dependances
+        run: |
+          cp .env.test .env
+          composer install --prefer-dist --no-progress --no-suggest
+
+  # Job 3: Preparation de la base de donnees
+  preparation-base-de-donnees:
+    runs-on: ubuntu-latest
+    needs: installation-dependances # Ce job depend du job d'installation des dependances
     services:
       mysql:
         image: mysql:5.7
@@ -19,22 +39,9 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: rosedede
           MYSQL_DATABASE: testBDD
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "8.1"
-
-      - name: Install dependencies
-        run: |
-          cp .env.test .env
-          composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Set up environment variables
+      - uses: actions/checkout@v2 # Peut reutiliser l'etape de recuperation
+      - name: Configuration des variables d'environnement
         run: |
           echo "APP_ENV=test" >> .env
           echo "APP_SECRET=d312c95a7b0d69c2fc5fba65c71065c9" >> .env
@@ -44,26 +51,33 @@ jobs:
           echo "PANTHER_APP_ENV=panther" >> .env
           echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> .env
           echo "MESSENGER_TRANSPORT_DSN=doctrine://default" >> .env
-
-      # - name: Wait for MySQL to be ready
-      #   run: |
-      #     until mysqladmin ping -h 127.0.0.1 --silent; do
-      #       echo "Waiting for database connection..."
-      #       sleep 2
-      #     done
-
-      - name: Prepare test database
+      - name: Attente de la disponibilite de MySQL # Envisagez d'ajouter cette etape
+        run: |
+          until mysqladmin ping -h 127.0.0.1 --silent; do
+            echo "Attente de la connexion à la base de donnees..."
+            sleep 2
+          done
+      - name: Preparation de la base de donnees de test
         run: php bin/console doctrine:database:create --env=test
-
-      - name: Crée l'ensemble des tables
+      - name: Cree l'ensemble des tables
         run: php bin/console doctrine:migrations:migrate --env=test
-
       - name: Load fixtures
         run: php bin/console doctrine:fixtures:load --env=test --no-interaction
 
-      - name: Run tests
+  # Job 4 (optionnel): Execution des tests unitaires
+  execution-tests-unitaires:
+    runs-on: ubuntu-latest
+    needs: preparation-base-de-donnees # Ce job depend du job de preparation de la base de donnees
+    steps:
+      - uses: actions/checkout@v2 # Peut reutiliser l'etape de recuperation
+      - name: Execution des tests unitaires
         run: php bin/phpunit
 
-      - name: Run Behat/Mink tests
-        run: |
-          php vendor/bin/behat
+  # Job 5 (optionnel): Execution des tests Behat/Mink
+  execution-tests-behat-mink:
+    runs-on: ubuntu-latest
+    needs: preparation-base-de-donnees # Ce job depend du job de preparation de la base de donnees
+    steps:
+      - uses: actions/checkout@v2 # Peut reutiliser l'etape de recuperation
+      - name: Execution des tests Behat/Mink
+        run: php vendor/bin/behat
