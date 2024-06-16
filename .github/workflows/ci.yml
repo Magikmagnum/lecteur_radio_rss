@@ -17,7 +17,7 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: rosedede
+          MYSQL_ROOT_PASSWORD: ${{ secrets.PASSWORD_SECRET }}
           MYSQL_DATABASE: testBDD
 
     steps:
@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "APP_ENV=test" >> .env
           echo "APP_SECRET=d312c95a7b0d69c2fc5fba65c71065c9" >> .env
-          echo "DATABASE_URL=mysql://root:rosedede@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4" >> .env
+          echo "DATABASE_URL=mysql://root:${{ secrets.PASSWORD_SECRET }}@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4" >> .env
           echo "KERNEL_CLASS='App\\Kernel'" >> .env
           echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> .env
           echo "PANTHER_APP_ENV=panther" >> .env
@@ -74,6 +74,14 @@ jobs:
         with:
           name: phpunit-coverage-report
           path: build/logs/clover.xml
+
+      # - name: Upload PHPUnit coverage report to Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     files: build/logs/clover.xml
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     flags: unittests
+      #     name: codecov-coverage
 
       - name: Run Behat/Mink tests
         run: |
