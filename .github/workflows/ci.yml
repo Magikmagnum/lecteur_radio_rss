@@ -61,8 +61,19 @@ jobs:
       - name: Load fixtures
         run: php bin/console doctrine:fixtures:load --env=test --no-interaction
 
-      - name: Run tests
-        run: php bin/phpunit
+      # - name: Run tests
+      #   run: php bin/phpunit
+
+      - name: Run PHPUnit tests and generate coverage report
+        run: |
+          mkdir -p build/logs
+          php bin/phpunit --coverage-clover build/logs/clover.xml
+
+      - name: Upload PHPUnit coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: phpunit-coverage-report
+          path: build/logs/clover.xml
 
       - name: Run Behat/Mink tests
         run: |
