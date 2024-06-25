@@ -32,7 +32,19 @@ class UserRepositoryTest extends KernelTestCase
     public function testCount(): void
     {
         $this->databaseTool->loadFixtures([UserFixtures::class]);
-        $userCount = $this->entityManager->getRepository(User::class)->count([]);
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+
+        $users = $userRepository->findAll();
+        $userTest = $users[3];
+
+        $this->assertEquals(4, $userTest->getId());
+        $this->assertEquals("user3@domaine.com", $userTest->getEmail());
+        $this->assertEquals("user3@domaine.com", $userTest->getUserIdentifier());
+        $this->assertEquals(["ROLE_ADMIN", "ROLE_USER"], $userTest->getRoles());
+        $this->assertEquals("0000", $userTest->getPassword());
+
+        $userCount = $userRepository->count([]);
         $this->assertEquals(10, $userCount); // Exemple, remplacer 10 par le nombre attendu d'utilisateurs dans les fixtures
     }
 
@@ -43,16 +55,4 @@ class UserRepositoryTest extends KernelTestCase
         $this->entityManager->close();
         $this->entityManager = null;
     }
-
-
-
-
-    // public function testSomething(): void
-    // {
-    //     $kernel = self::bootKernel();
-
-    //     $this->assertSame('test', $kernel->getEnvironment());
-    //     // $routerService = static::getContainer()->get('router');
-    //     // $myCustomService = static::getContainer()->get(CustomService::class);
-    // }
 }

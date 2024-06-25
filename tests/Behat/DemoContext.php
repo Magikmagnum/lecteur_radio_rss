@@ -1,13 +1,18 @@
 <?php
 
+
 declare(strict_types=1);
+
 
 namespace App\Tests\Behat;
 
+
+use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Behat\Context\Context;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+
 
 /**
  * This context class contains the definitions of the steps used by the demo
@@ -17,6 +22,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
  */
 final class DemoContext implements Context
 {
+
     /** @var KernelInterface */
     private $kernel;
 
@@ -29,9 +35,9 @@ final class DemoContext implements Context
     }
 
     /**
-     * @When a demo scenario sends a request to :path
+     * @When a demo scenario sends a request to :arg1
      */
-    public function aDemoScenarioSendsARequestTo(string $path): void
+    public function aDemoScenarioSendsARequestTo($path): void
     {
         $this->response = $this->kernel->handle(Request::create($path, 'GET'));
     }

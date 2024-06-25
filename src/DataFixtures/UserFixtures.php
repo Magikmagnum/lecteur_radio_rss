@@ -15,6 +15,10 @@ class UserFixtures extends Fixture
             $user->setEmail("user$i@domaine.com");
             $user->setPassword("0000");
             $manager->persist($user);
+
+            if ($i === 3) {
+                $user->setRoles(["ROLE_ADMIN"]);
+            }
         }
         $manager->flush();
     }

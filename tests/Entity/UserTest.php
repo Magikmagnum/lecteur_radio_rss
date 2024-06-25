@@ -30,6 +30,7 @@ class UserTest extends KernelTestCase
     {
         $user = new User();
         $user->setEmail('test@example.com');
+        $user->setRoles(["ROLE_USER"]);
         $user->setPassword("1ericTest#<>");
         return $user;
     }
@@ -129,7 +130,6 @@ class UserTest extends KernelTestCase
     public function testUniqueEmailConstraint(): void
     {
         $entityManager = $this->entityManager;
-        $validator = $this->validator;
 
         // Create and persist the first user
         $firstUser = $this->getEntity()->setEmail('testex1@ample.com');
@@ -139,6 +139,8 @@ class UserTest extends KernelTestCase
             // Attempt to create a duplicate user with the same email
             $duplicateUser = $this->getEntity()->setEmail('testex1@ample.com')->setPassword('1ano3therPass?wo@rd');
             $entityManager->persist($duplicateUser);
+
+            $this->assertEquals($firstUser->getEmail(), $duplicateUser->getEmail());
             $entityManager->flush();
         } catch (UniqueConstraintViolationException $exception) {
             $this->assertInstanceOf(UniqueConstraintViolationException::class, $exception);
