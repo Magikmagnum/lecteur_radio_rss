@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\FluxRepository;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,6 +27,17 @@ class Flux
 
     #[ORM\ManyToOne]
     private ?User $user = null;
+
+    /**
+     * @var Collection<int, Emission>
+     */
+    #[ORM\OneToMany(targetEntity: Emission::class, mappedBy: 'flux', orphanRemoval: true)]
+    private Collection $emissions;
+
+    public function __construct()
+    {
+        $this->emissions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -51,6 +64,36 @@ class Flux
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Emission>
+     */
+    public function getEmissions(): Collection
+    {
+        return $this->emissions;
+    }
+
+    public function addEmission(Emission $emission): static
+    {
+        if (!$this->emissions->contains($emission)) {
+            $this->emissions->add($emission);
+            $emission->setFlux($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmission(Emission $emission): static
+    {
+        if ($this->emissions->removeElement($emission)) {
+            // set the owning side to null (unless already changed)
+            if ($emission->getFlux() === $this) {
+                $emission->setFlux(null);
+            }
+        }
 
         return $this;
     }
