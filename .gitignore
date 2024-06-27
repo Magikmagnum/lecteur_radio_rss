@@ -5,3 +5,4 @@ var
 /behat.yml
 ###< friends-of-behat/symfony-extension ###
 public/test-coverage/*
+public/bundles/easyadmin/*
