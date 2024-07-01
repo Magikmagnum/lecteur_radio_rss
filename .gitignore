@@ -6,4 +6,7 @@ public/test-coverage
 .env.test.local
 .env.local
 .phpunit.result.cache
+coverage.xml
+coverage.php
+coverage/
 

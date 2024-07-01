@@ -51,6 +51,7 @@
         "friends-of-behat/mink-browserkit-driver": "^1.6",
         "friends-of-behat/mink-extension": "^2.7",
         "friends-of-behat/symfony-extension": "^2.5",
+        "jaschilz/php-coverage-badger": "^2.0",
         "liip/test-fixtures-bundle": "^3.0",
         "phpunit/php-code-coverage": "^9.2",
         "phpunit/phpunit": "^9.6",
@@ -103,7 +104,14 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ], 
+        "test": [
+            "./bin/phpunit --coverage-html coverage --coverage-clover coverage.xml"
+        ],
+        "update-badges": [
+            "vendor/bin/php-coverage-badger coverage.xml .github/badges/coverage.svg"
         ]
+
     },
     "conflict": {
         "symfony/symfony": "*"
