@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PlaylistRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -27,6 +29,17 @@ class Playlist
 
     #[ORM\ManyToOne]
     private ?User $user = null;
+
+    /**
+     * @var Collection<int, Emission>
+     */
+    #[ORM\OneToMany(targetEntity: Emission::class, mappedBy: 'playlist', orphanRemoval: true)]
+    private Collection $emission;
+
+    public function __construct()
+    {
+        $this->emission = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -65,6 +78,36 @@ class Playlist
     public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Emission>
+     */
+    public function getEmission(): Collection
+    {
+        return $this->emission;
+    }
+
+    public function addEmission(Emission $emission): static
+    {
+        if (!$this->emission->contains($emission)) {
+            $this->emission->add($emission);
+            $emission->setPlaylist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmission(Emission $emission): static
+    {
+        if ($this->emission->removeElement($emission)) {
+            // set the owning side to null (unless already changed)
+            if ($emission->getPlaylist() === $this) {
+                $emission->setPlaylist(null);
+            }
+        }
 
         return $this;
     }
