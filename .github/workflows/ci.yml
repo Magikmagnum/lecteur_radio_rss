@@ -28,6 +28,11 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.1"
+          coverage: xdebug
+          tools: composer:v2
+          extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, json, pdo, xdebug
+        env:
+          update: true
 
       - name: Install dependencies
         run: |
@@ -45,13 +50,6 @@ jobs:
           echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> .env
           echo "MESSENGER_TRANSPORT_DSN=doctrine://default" >> .env
 
-      # - name: Wait for MySQL to be ready
-      #   run: |
-      #     until mysqladmin ping -h 127.0.0.1 --silent; do
-      #       echo "Waiting for database connection..."
-      #       sleep 2
-      #     done
-
       - name: Prepare test database
         run: php bin/console doctrine:database:create --env=test
 
@@ -62,8 +60,15 @@ jobs:
         run: php bin/console doctrine:fixtures:load --env=test --no-interaction
 
       - name: Run tests
-        run: php bin/phpunit
+        run: php bin/phpunit --coverage-html coverage --coverage-clover coverage.xml
 
       - name: Run Behat/Mink tests
         run: |
           php vendor/bin/behat
+
+      - name: Check test coverage
+        id: test-coverage
+        uses: johanvanhelden/gha-clover-test-coverage-check@v1
+        with:
+          percentage: "40"
+          filename: "coverage.xml"
