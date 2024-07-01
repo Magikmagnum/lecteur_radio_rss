@@ -3,3 +3,7 @@ vendor
 var
 public/bundles/easyadmin
 public/test-coverage
+.env.test.local
+.env.local
+.phpunit.result.cache
+
