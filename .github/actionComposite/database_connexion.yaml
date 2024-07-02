@@ -1,0 +1,103 @@
+# .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+env:
+  MYSQL_ROOT_PASSWORD: rosedede
+  MYSQL_DATABASE: testBDD
+  PHP_VERSION: "8.1"
+  APP_ENV: test
+  APP_SECRET: d312c95a7b0d69c2fc5fba65c71065c9
+  DATABASE_URL: mysql://root:rosedede@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4
+  KERNEL_CLASS: 'App\\Kernel'
+  SYMFONY_DEPRECATIONS_HELPER: 999999
+  PANTHER_APP_ENV: panther
+  PANTHER_ERROR_SCREENSHOT_DIR: ./var/error-screenshots
+  MESSENGER_TRANSPORT_DSN: doctrine://default
+
+jobs:
+  Tests-unitaires:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+
+    steps:
+      - name: Setup environment
+        uses: ./.github/actionComposite/database_connexion
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          app-env: ${{ env.APP_ENV }}
+          app-secret: ${{ env.APP_SECRET }}
+          database-url: ${{ env.DATABASE_URL }}
+          kernel-class: ${{ env.KERNEL_CLASS }}
+          symfony-deprecations-helper: ${{ env.SYMFONY_DEPRECATIONS_HELPER }}
+          panther-app-env: ${{ env.PANTHER_APP_ENV }}
+          panther-error-screenshot-dir: ${{ env.PANTHER_ERROR_SCREENSHOT_DIR }}
+          messenger-transport-dsn: ${{ env.MESSENGER_TRANSPORT_DSN }}
+
+      - name: Run tests
+        run: php bin/phpunit --coverage-html coverage --coverage-clover coverage.xml
+
+      - name: Save coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  Tests-end-to-end:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:5.7
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+
+    steps:
+      - name: Setup environment
+        uses: ./.github/actionComposite/database_connexion
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          app-env: ${{ env.APP_ENV }}
+          app-secret: ${{ env.APP_SECRET }}
+          database-url: ${{ env.DATABASE_URL }}
+          kernel-class: ${{ env.KERNEL_CLASS }}
+          symfony-deprecations-helper: ${{ env.SYMFONY_DEPRECATIONS_HELPER }}
+          panther-app-env: ${{ env.PANTHER_APP_ENV }}
+          panther-error-screenshot-dir: ${{ env.PANTHER_ERROR_SCREENSHOT_DIR }}
+          messenger-transport-dsn: ${{ env.MESSENGER_TRANSPORT_DSN }}
+
+      - name: Run Behat/Mink tests
+        run: php vendor/bin/behat
+
+  Tests-coverage:
+    runs-on: ubuntu-latest
+    needs: [Tests-unitaires, Tests-end-to-end]
+
+    steps:
+      - name: Download coverage report
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-report
+
+      - name: Code Coverage Check
+        id: test-coverage
+        uses: johanvanhelden/gha-clover-test-coverage-check@v1
+        with:
+          percentage: "10"
+          filename: "coverage-report/coverage.xml"
