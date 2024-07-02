@@ -1,4 +1,4 @@
-# Nom du workflow
+# .github/workflows/ci.yml
 name: CI
 
 on:
@@ -6,6 +6,19 @@ on:
     branches: [main, dev]
   pull_request:
     branches: [main, dev]
+
+env:
+  MYSQL_ROOT_PASSWORD: ${{ secrets.ROOT_PASSWORD }}
+  MYSQL_DATABASE: ${{ secrets.DATABASE }}
+  PHP_VERSION: "8.1"
+  APP_ENV: test
+  APP_SECRET: d312c95a7b0d69c2fc5fba65c71065c9
+  DATABASE_URL: mysql://${{ secrets.USER_NAME }}:${{ secrets.ROOT_PASSWORD }}@127.0.0.1:3306/${{ secrets.DATABASE }}?serverVersion=5.7&charset=utf8mb4
+  KERNEL_CLASS: 'App\\Kernel'
+  SYMFONY_DEPRECATIONS_HELPER: 999999
+  PANTHER_APP_ENV: panther
+  PANTHER_ERROR_SCREENSHOT_DIR: ./var/error-screenshots
+  MESSENGER_TRANSPORT_DSN: doctrine://default
 
 jobs:
   Tests-unitaires:
@@ -17,42 +30,22 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: rosedede
-          MYSQL_DATABASE: testBDD
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup environment
+        uses: ./.github/actionComposite/database_connexion
         with:
-          php-version: "8.1"
-          coverage: xdebug
-          tools: composer:v2
-          extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, json, pdo, xdebug
-
-      - name: Install dependencies
-        run: |
-          cp .env.test .env
-          composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Set up environment variables
-        run: |
-          echo "APP_ENV=test" >> .env
-          echo "APP_SECRET=d312c95a7b0d69c2fc5fba65c71065c9" >> .env
-          echo "DATABASE_URL=mysql://root:rosedede@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4" >> .env
-          echo "KERNEL_CLASS='App\\Kernel'" >> .env
-          echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> .env
-          echo "PANTHER_APP_ENV=panther" >> .env
-          echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> .env
-          echo "MESSENGER_TRANSPORT_DSN=doctrine://default" >> .env
-
-      - name: Prepare test database
-        run: |
-          php bin/console doctrine:database:create --env=test
-          php bin/console doctrine:migrations:migrate --env=test
-          php bin/console doctrine:fixtures:load --env=test --no-interaction
+          php-version: ${{ env.PHP_VERSION }}
+          app-env: ${{ env.APP_ENV }}
+          app-secret: ${{ env.APP_SECRET }}
+          database-url: ${{ env.DATABASE_URL }}
+          kernel-class: ${{ env.KERNEL_CLASS }}
+          symfony-deprecations-helper: ${{ env.SYMFONY_DEPRECATIONS_HELPER }}
+          panther-app-env: ${{ env.PANTHER_APP_ENV }}
+          panther-error-screenshot-dir: ${{ env.PANTHER_ERROR_SCREENSHOT_DIR }}
+          messenger-transport-dsn: ${{ env.MESSENGER_TRANSPORT_DSN }}
 
       - name: Run tests
         run: php bin/phpunit --coverage-html coverage --coverage-clover coverage.xml
@@ -73,8 +66,46 @@ jobs:
         ports:
           - 3306:3306
         env:
-          MYSQL_ROOT_PASSWORD: rosedede
-          MYSQL_DATABASE: testBDD
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+
+    steps:
+      - name: Setup environment
+        uses: ./.github/actionComposite/database_connexion
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          app-env: ${{ env.APP_ENV }}
+          app-secret: ${{ env.APP_SECRET }}
+          database-url: ${{ env.DATABASE_URL }}
+          kernel-class: ${{ env.KERNEL_CLASS }}
+          symfony-deprecations-helper: ${{ env.SYMFONY_DEPRECATIONS_HELPER }}
+          panther-app-env: ${{ env.PANTHER_APP_ENV }}
+          panther-error-screenshot-dir: ${{ env.PANTHER_ERROR_SCREENSHOT_DIR }}
+          messenger-transport-dsn: ${{ env.MESSENGER_TRANSPORT_DSN }}
+
+      - name: Run Behat/Mink tests
+        run: php vendor/bin/behat
+
+  Tests-coverage:
+    runs-on: ubuntu-latest
+    needs: [Tests-end-to-end]
+
+    steps:
+      - name: Download coverage report
+        uses: actions/download-artifact@v2
+        with:
+          name: coverage-report
+
+      - name: Code Coverage Check
+        id: test-coverage
+        uses: johanvanhelden/gha-clover-test-coverage-check@v1
+        with:
+          percentage: "10"
+          filename: "coverage-report/coverage.xml"
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [Tests-coverage]
 
     steps:
       - name: Checkout code
@@ -84,48 +115,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.1"
+          coverage: none
           tools: composer:v2
           extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, json, pdo
 
-      - name: Install dependencies
+      - name: Build Docker image
         run: |
-          cp .env.test .env
-          composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Set up environment variables
-        run: |
-          echo "APP_ENV=test" >> .env
-          echo "APP_SECRET=d312c95a7b0d69c2fc5fba65c71065c9" >> .env
-          echo "DATABASE_URL=mysql://root:rosedede@127.0.0.1:3306/testBDD?serverVersion=5.7&charset=utf8mb4" >> .env
-          echo "KERNEL_CLASS='App\\Kernel'" >> .env
-          echo "SYMFONY_DEPRECATIONS_HELPER=999999" >> .env
-          echo "PANTHER_APP_ENV=panther" >> .env
-          echo "PANTHER_ERROR_SCREENSHOT_DIR=./var/error-screenshots" >> .env
-          echo "MESSENGER_TRANSPORT_DSN=doctrine://default" >> .env
-
-      - name: Prepare test database
-        run: |
-          php bin/console doctrine:database:create --env=test
-          php bin/console doctrine:migrations:migrate --env=test
-          php bin/console doctrine:fixtures:load --env=test --no-interaction
-
-      - name: Run Behat/Mink tests
-        run: php vendor/bin/behat
-
-  Tests-coverage:
-    runs-on: ubuntu-latest
-    needs: [Tests-unitaires, Tests-end-to-end]
-
-    steps:
-      - name: Download coverage report
-        uses: actions/download-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage-report
-
-      - name: Code Coverage Check
-        id: test-coverage
-        uses: johanvanhelden/gha-clover-test-coverage-check@v1
-        with:
-          percentage: "10"
-          filename: "coverage-report/coverage.xml"
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/your-repo-name:latest .
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/your-repo-name:latest
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
