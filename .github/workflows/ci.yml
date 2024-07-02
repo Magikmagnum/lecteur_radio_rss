@@ -149,7 +149,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t magikmgnum/lecteurradio:latest .
-          docker login -u magikmgnum -p EY6+W69n+pTK3$a
+          echo $DOCKER_PASSWORD | docker login -u magikmgnum --password-stdin
           docker push magikmgnum/lecteurradio:latest
         env:
-          DOCKER_PASSWORD: EY6+W69n+pTK3$a
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
