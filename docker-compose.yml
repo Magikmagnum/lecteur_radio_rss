@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  www:
+    build: apache
+    container_name: www_lecteurRadio
+    depends_on:
+      - db
+    ports:
+      - "8760:80"
+      - "9003:9003"
+    volumes:
+      - ./apache/vhosts:/etc/apache2/sites-enabled
+      - ./:/var/www
+    restart: always
+    networks:
+      - privety
+
+  db:
+    image: mysql
+    container_name: db_lecteurRadio
+    restart: always
+    volumes:
+      - db-lecteurRadio-data:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    networks:
+      - privety
+
+networks:
+  privety:
+
+volumes:
+  db-lecteurRadio-data:
