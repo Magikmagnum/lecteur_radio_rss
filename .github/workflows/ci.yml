@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Setup environment
-        uses: ./.github/actionComposite/database_connexion
+        uses: ./.github/actions/setup/action.yml
         with:
           php-version: ${{ env.PHP_VERSION }}
           app-env: ${{ env.APP_ENV }}
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - name: Setup environment
-        uses: ./.github/actionComposite/database_connexion
+        uses: ./.github/actions/setup/action.yml
         with:
           php-version: ${{ env.PHP_VERSION }}
           app-env: ${{ env.APP_ENV }}
