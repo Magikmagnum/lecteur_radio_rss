@@ -20,6 +20,10 @@ env:
   PANTHER_ERROR_SCREENSHOT_DIR: ./var/error-screenshots
   MESSENGER_TRANSPORT_DSN: doctrine://default
 
+defaults:
+  run:
+    working-directory: ./
+
 jobs:
   Tests-unitaires:
     runs-on: ubuntu-latest
