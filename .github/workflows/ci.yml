@@ -66,9 +66,16 @@ jobs:
         run: |
           php vendor/bin/behat
 
-      - name: Check test coverage
-        id: test-coverage
-        uses: johanvanhelden/gha-clover-test-coverage-check@v1
+      # - name: Check test coverage
+      #   id: test-coverage
+      #   uses: johanvanhelden/gha-clover-test-coverage-check@v1
+      #   with:
+      #     percentage: "10"
+      #     filename: "coverage.xml"
+
+      - name: Code Coverage Check
+        uses: sourcetoad/phpunit-coverage-action@v1
         with:
-          percentage: "10"
-          filename: "coverage.xml"
+          clover_report_path: coverage.xml
+          min_coverage_percent: 10
+          fail_build_on_under: true
