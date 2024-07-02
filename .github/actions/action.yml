@@ -1,0 +1,67 @@
+# .github/actions/setup/action.yml
+name: 'Setup environment'
+description: 'Setup PHP environment and database'
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        coverage: xdebug
+        tools: composer:v2
+        extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, json, pdo, xdebug
+
+    - name: Install dependencies
+      run: |
+        cp .env.test .env
+        composer install --prefer-dist --no-progress --no-suggest
+
+    - name: Set up environment variables
+      run: |
+        echo "APP_ENV=${{ inputs.app-env }}" >> .env
+        echo "APP_SECRET=${{ inputs.app-secret }}" >> .env
+        echo "DATABASE_URL=${{ inputs.database-url }}" >> .env
+        echo "KERNEL_CLASS=${{ inputs.kernel-class }}" >> .env
+        echo "SYMFONY_DEPRECATIONS_HELPER=${{ inputs.symfony-deprecations-helper }}" >> .env
+        echo "PANTHER_APP_ENV=${{ inputs.panther-app-env }}" >> .env
+        echo "PANTHER_ERROR_SCREENSHOT_DIR=${{ inputs.panther-error-screenshot-dir }}" >> .env
+        echo "MESSENGER_TRANSPORT_DSN=${{ inputs.messenger-transport-dsn }}" >> .env
+
+    - name: Prepare test database
+      run: |
+        php bin/console doctrine:database:create --env=test
+        php bin/console doctrine:migrations:migrate --env=test
+        php bin/console doctrine:fixtures:load --env=test --no-interaction
+
+inputs:
+  php-version:
+    description: 'PHP version'
+    required: true
+  app-env:
+    description: 'Application environment'
+    required: true
+  app-secret:
+    description: 'Application secret'
+    required: true
+  database-url:
+    description: 'Database URL'
+    required: true
+  kernel-class:
+    description: 'Kernel class'
+    required: true
+  symfony-deprecations-helper:
+    description: 'Symfony deprecations helper'
+    required: true
+  panther-app-env:
+    description: 'Panther app environment'
+    required: true
+  panther-error-screenshot-dir:
+    description: 'Panther error screenshot directory'
+    required: true
+  messenger-transport-dsn:
+    description: 'Messenger transport DSN'
+    required: true
