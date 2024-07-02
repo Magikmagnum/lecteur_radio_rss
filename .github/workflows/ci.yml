@@ -114,7 +114,7 @@ jobs:
 
   Tests-coverage:
     runs-on: ubuntu-latest
-    needs: [Tests-unitaires, Tests-end-to-end]
+    needs: [Tests-end-to-end]
 
     steps:
       - name: Download coverage report
@@ -129,3 +129,27 @@ jobs:
         with:
           percentage: "10"
           filename: "coverage-report/coverage.xml"
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [Tests-coverage]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          coverage: none
+          tools: composer:v2
+          extensions: mbstring, xml, ctype, iconv, intl, dom, filter, gd, json, pdo
+
+      - name: Build Docker image
+        run: |
+          docker build -t magikmgnum/lecteurradio:latest .
+          docker login -u magikmgnum -p EY6+W69n+pTK3$a
+          docker push magikmgnum/lecteurradio:latest
+        env:
+          DOCKER_PASSWORD: EY6+W69n+pTK3$a
